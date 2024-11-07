@@ -239,7 +239,7 @@ export default function ProductsPage() {
     <>
       <div className="flex justify-between m-4">
         <h1 className="text-2xl font-semibold">List of Page</h1>
-        <button onClick={() => setShowModal(true)} className="px-3 py-2 m-3 bg-red-600 rounded text-white font-semibold">New Product</button>
+        <button onClick={() => setShowModal(true)} className="px-3 py-2 m-3 bg-green-500 rounded text-white font-semibold hover:bg-green-700"><i className='bx bx-message-alt-add'></i> New Product</button>
       </div>
       <div className="mx-10 my-7">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 m-10">
