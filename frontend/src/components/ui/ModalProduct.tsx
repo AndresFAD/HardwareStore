@@ -2,7 +2,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { Product } from '../../types/Product';
 import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import toast, { Toaster } from "react-hot-toast";
 
 interface props {
     product: Product,
@@ -39,26 +39,19 @@ export default function ModalProduct({ product, setShowModal }: props) {
     }
 
     const handleSave = () => {
-        console.log("enter to handleSave")
         console.log(actualProduct)
-        setShowModal(false)
-        toast.success("Employee has been updated!", {
-            position: "top-right",
-            autoClose: 2000,
-        });
         if (validateForm()) {
             axios.post('https://api.example.com/data', product)
                 .then(() =>
-                    toast.success("Product has been updated!", {
-                        position: "bottom-right",
-                        autoClose: 2000,
-
-                    })
+                    toast.success("Product has been updated!")
                 )
-                .catch(
-
+                .catch(() =>
+                    toast.error("Something went wrong!!")
             );
 
+        }
+        else{
+            toast.error("Complete all fields!!")
         }
 
 
@@ -132,7 +125,10 @@ export default function ModalProduct({ product, setShowModal }: props) {
             </div>
             <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
 
-            <ToastContainer position='bottom-right' autoClose={2000} />
+            <Toaster
+                position="bottom-right"
+                reverseOrder={false}
+            />
         </>
     );
 }
