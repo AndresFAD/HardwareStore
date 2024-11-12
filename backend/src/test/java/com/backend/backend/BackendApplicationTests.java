@@ -1,10 +1,10 @@
-package com.hardwareStore;
+package com.backend.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class HardwareStoreApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {
