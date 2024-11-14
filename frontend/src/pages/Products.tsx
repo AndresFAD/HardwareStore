@@ -16,10 +16,16 @@ export default function ProductsPage() {
   }
 
   useEffect(() => {
-    axios.get("frontend/src/types/ListProducts.json").then(data => setProducts(data.data)).catch(() => console.log("Error"))
+    getProducts()
   }, [])
 
-  
+  const getProducts = () => {
+    axios.get("http://localhost:8080/api/hardwarestore/products").then(data => setProducts(data.data)).catch(() => console.log("Error"))
+  }
+
+  const handleSearchTitle = (title: string) => {
+    axios.get(`http://localhost:8080/api/hardwarestore/product/search?query=${title}`).then(data => setProducts(data.data)).catch(() => console.log("Error"))
+  }
 
   const itemsPerPage = 9;
 
@@ -40,7 +46,7 @@ export default function ProductsPage() {
     <>
       <div className="flex justify-between m-4">
         <h1 className="text-2xl font-semibold">List of Page</h1>
-        <input className="w-7/12 h-14 rounded-lg border px-4 border-black" placeholder="Title of the product" type="text" onChange={(e) => handleSearchTitle(e.target.value)}/>
+        <input className="w-7/12 h-14 rounded-lg border px-4 border-black" placeholder="Title of the product" type="text" onChange={(e) => handleSearchTitle(e.target.value)} />
         <button onClick={() => setShowModal(true)} className="px-3 py-2 m-3 bg-green-500 rounded text-white font-semibold hover:bg-green-700"><i className='bx bx-message-alt-add'></i> New Product</button>
       </div>
       <div className="mx-10 my-7">
@@ -67,8 +73,8 @@ export default function ProductsPage() {
               key={index + 1}
               onClick={() => handlePageChange(index + 1)}
               className={`px-4 py-2 rounded-md ${currentPage === index + 1
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
                 }`}
             >
               {index + 1}
