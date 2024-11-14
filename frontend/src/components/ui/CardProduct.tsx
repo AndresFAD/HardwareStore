@@ -1,17 +1,25 @@
 import { useState } from "react";
 import ModalProduct from "./ModalProduct";
 import { Product } from "../../types/Product";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 interface props {
-    product: Product
+    product: Product,
+    getProducts: Function
 }
 
-export default function CardProduct({product}: props) {
+export default function CardProduct({product, getProducts}: props) {
 
     const [showModal, setShowModal] = useState(false);
 
     const closeModal = () => {
         setShowModal(false)
+    }
+
+    const handleDeleteProduct = () => {
+        console.log("entro a la mica")
+        axios.delete(`http://localhost:8080/api/hardwarestore/product/${product.id}`).then(() => { getProducts(); toast.success('Product Deleted!') }).catch(err => console.log(err))
     }
 
     return (
@@ -20,8 +28,8 @@ export default function CardProduct({product}: props) {
 
             <div>
                 <div className="card h-auto max-w-full p-3 bg-gray-200 relative overflow-visible shadow-md transition-transform duration-300 ease-in-out hover:scale-105">
-                    <button onClick={() => setShowModal(true)} className="card-img h-2/5 w-full rounded-lg hover:shadow-lg">
-                        <img className="max-w-full rounded-lg" src={product.image} alt="" />
+                    <button onClick={() => setShowModal(true)} className="card-img h-2/5 w-full rounded-lg  flex justify-center">
+                        <img className="max-w-full max-h-80 rounded-lg text-center" src={product.image} alt="" />
                     </button>
                     <div className="card-info pt-4">
                         <button onClick={() => setShowModal(true)}>
@@ -44,15 +52,16 @@ export default function CardProduct({product}: props) {
                             </svg>
                         </div> */}
 
-                        <button className="py-2 px-3 mx-3 bg-yellow-500 rounded-lg hover:bg-yellow-600 font-semibold"><i className='bx bx-edit'></i> Edit</button>
-                        <button className="py-2 px-3 mx-3 bg-red-500 text-white rounded-lg hover:bg-red-700 font-semibold"><i className='bx bx-trash'></i> Delete</button>
+                        <button onClick={() => setShowModal(true)} className="py-2 px-3 mx-3 bg-yellow-500 rounded-lg hover:bg-yellow-600 font-semibold"><i className='bx bx-edit'></i> Edit</button>
+                        <button onClick={handleDeleteProduct} className="py-2 px-3 mx-3 bg-red-500 text-white rounded-lg hover:bg-red-700 font-semibold"><i className='bx bx-trash'></i> Delete</button>
                     </div>
                 </div>
 
             </div>
 
-
-            {showModal && (<ModalProduct product={product} setShowModal={closeModal} />)}
+            <Toaster position="bottom-right"
+                reverseOrder={false} />
+            {showModal && (<ModalProduct product={product} setShowModal={closeModal} getProducts={getProducts} />)}
         </>
     )
 }
