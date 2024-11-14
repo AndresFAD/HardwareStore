@@ -4,56 +4,35 @@ import { Product } from "../types/Product";
 import ModalProduct from "../components/ui/ModalProduct";
 import axios from "axios";
 
+
 export default function ProductsPage() {
 
   const [showModal, setShowModal] = useState(false);
-  const [products, setProducts] = useState<Product[]>([])
-  const product:Product = {id:"", title:"", description:"", price:0, category:"", image:""}
+  const [products, setProducts] = useState<Product[]>([]);
+  const product: Product = { id: "", title: "", description: "", price: 0, category: "", image: "" }
 
   const closeModal = () => {
     setShowModal(false)
   }
 
   useEffect(() => {
-    getProducts()
+    axios.get("frontend/src/types/ListProducts.json").then(data => setProducts(data.data)).catch(() => console.log("Error"))
   }, [])
-
-  const getProducts = () => {
-    axios.get("http://localhost:8080/api/hardwarestore/products").then(data => setProducts(data.data)).catch(err => console.log(err))
-
-    console.log(products)
-  }
-
-  const handleSearchTitle = (title: string) => {
-    console.log(title)
-    if(title !== "")
-    {
-      axios.get(`http://localhost:8080/api/hardwarestore/product/search?query=${title}`).then(data => setProducts(data.data)).catch(err => console.log(err))
-    }
-    else{
-      getProducts()
-    }
-  }
 
   
 
-  // Número de elementos por página
   const itemsPerPage = 9;
 
-  // Estado para la página actual
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Función para cambiar la página
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  // Calcular los elementos a mostrar para la página actual
-  const indexOfLastItem = currentPage * itemsPerPage;  // Índice del último elemento
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;  // Índice del primer elemento
-  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);  // Elementos a mostrar
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Calcular el número total de páginas
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   return (
@@ -74,37 +53,36 @@ export default function ProductsPage() {
         </div>
 
         <div className="flex justify-center items-center mt-8 gap-3">
-        <button
-          className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Anterior
-        </button>
-
-        {/* Mostrar número de páginas */}
-        {Array.from({ length: totalPages }, (_, index) => (
           <button
-            key={index + 1}
-            onClick={() => handlePageChange(index + 1)}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === index + 1
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
-            }`}
+            className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
           >
-            {index + 1}
+            Anterior
           </button>
-        ))}
 
-        <button
-          className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Siguiente
-        </button>
-      </div>
+          {/* Mostrar número de páginas */}
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 rounded-md ${currentPage === index + 1
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-gray-300 text-gray-600 hover:bg-gray-400'
+                }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
       {showModal && (<ModalProduct product={product} setShowModal={closeModal} getProducts={getProducts} />)}
     </>

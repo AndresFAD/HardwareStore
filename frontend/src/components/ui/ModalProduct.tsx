@@ -1,6 +1,7 @@
-import axios, { AxiosResponse } from "axios";
-import { Product } from "../../types/Product";
-import { useState } from "react";
+
+import axios, { AxiosResponse } from 'axios';
+import { Product } from '../../types/Product';
+import { useState } from 'react';
 import toast, { Toaster } from "react-hot-toast";
 
 interface props {
@@ -65,19 +66,19 @@ export default function ModalProduct({
     };
 
     const handleSave = () => {
-
+        console.log(actualProduct)
         if (validateForm()) {
-            axios
-                .post("http://localhost:8080/api/hardwarestore/product", actualProduct)
-                .then(() => {
-                    setShowModal(false);
-                    toast.success("Product has been saved!");
+            axios.post('https://api.example.com/data', product)
+                .then(() =>
+                    toast.success("Product has been updated!")
+                )
+                .catch(() =>
+                    toast.error("Something went wrong!!")
+            );
 
-                    getProducts();
-                })
-                .catch(() => toast.error("Somethig wrong happend! Try again"));
-        } else {
-            toast.error("Complete all the fields!");
+        }
+        else{
+            toast.error("Complete all fields!!")
         }
     };
 
