@@ -1,10 +1,6 @@
 package com.backend.backend.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,10 +16,11 @@ public class Product {
     private String description;
     private String category;
     private float price;
-    private String image;
+    @Column(name = "image", columnDefinition="bytea")
+    private byte[] image;
     private String created_at;
 
-    public Product(String title, String description, String category, float price, String image) {
+    public Product(String title, String description, String category, float price, byte[] image) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -77,11 +74,11 @@ public class Product {
         this.price = price;
     }
 
-    public String getImage() {
+    public byte[] getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(byte[] image) {
         this.image = image;
     }
 
@@ -101,7 +98,6 @@ public class Product {
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", price=" + price +
-                ", image='" + image + '\'' +
                 ", created_at='" + created_at + '\'' +
                 '}';
     }

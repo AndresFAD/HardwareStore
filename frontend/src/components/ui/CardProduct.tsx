@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalProduct from "./ModalProduct";
 import { Product } from "../../types/Product";
 import axios from "axios";
@@ -12,11 +12,22 @@ interface props {
 export default function CardProduct({product, getProducts}: props) {
 
     const [showModal, setShowModal] = useState(false);
+    const [actualProduct, setActualProduct] = useState<Product | null>(null);
 
     const closeModal = () => {
         setShowModal(false)
     }
 
+    useEffect(() => {
+        const actualProduct = product;
+        if (actualProduct.image) {
+            // Asumimos que actualProduct.image es una cadena Base64
+            const imageUrl = `data:image/jpeg;base64,${actualProduct.image}`;
+            actualProduct.image = imageUrl;
+        }
+        setActualProduct(actualProduct);
+    }, [product]);
+    
     const handleDeleteProduct = () => {
         console.log("entro a la mica")
         axios.delete(`http://localhost:8080/api/hardwarestore/product/${product.id}`).then(() => { getProducts(); toast.success('Product Deleted!') }).catch(err => console.log(err))
@@ -29,7 +40,11 @@ export default function CardProduct({product, getProducts}: props) {
             <div>
                 <div className="card h-auto max-w-full p-3 bg-gray-200 relative overflow-visible shadow-md transition-transform duration-300 ease-in-out hover:scale-105">
                     <button onClick={() => setShowModal(true)} className="card-img h-2/5 w-full rounded-lg  flex justify-center">
-                        <img className="max-w-full max-h-80 rounded-lg text-center" src={product.image} alt="" />
+                        {actualProduct?.image ? (
+                            <img className="max-w-full max-h-80 rounded-lg text-center" src={actualProduct.image} alt={product.title} />
+                        ) : (
+                            <p>No image available</p>
+                        )}
                     </button>
                     <div className="card-info pt-4">
                         <button onClick={() => setShowModal(true)}>

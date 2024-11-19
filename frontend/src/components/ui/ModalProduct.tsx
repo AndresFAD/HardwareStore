@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Product } from '../../types/Product';
 import { useState } from 'react';
 import toast, { Toaster } from "react-hot-toast";
+import { useForm } from 'react-hook-form';
 
 interface props {
     product: Product;
@@ -15,72 +16,87 @@ export default function ModalProduct({
     setShowModal,
     getProducts,
 }: props) {
-    const [actualProduct, setActualProduct] = useState<Product>(
-        product
-            ? { ...product }
-            : {
-                id: "",
-                title: "",
-                description: "",
-                price: 0,
-                category: "",
-                image: "",
+
+
+    const {
+        register,
+        setValue,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<Product>()
+
+    const onSubmit = handleSubmit((data) => {
+
+        const formData = new FormData();
+
+        // Añadir otros campos al FormData
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('category', data.category);
+        formData.append('price', data.price.toString()); // Convertir a string si es necesario
+
+        // Si se selecciona una imagen, añadirla
+        if (data.image && data.image[0]) {
+            formData.append('image', data.image[0]); // `data.image` es un FileList
+        }
+
+        axios.post('http://localhost:8080/api/hardwarestore/product', formData)
+            .then(() => {
+                toast.success("Product has been updated!")
+                setShowModal(false)
+                getProducts()
             }
-    );
-
-    const handleChangeFiled = (field: string, value: string | number) => {
-        setActualProduct({ ...actualProduct, [field]: value });
-    };
-
-    const handleChangeImage = (event) => {
-        setActualProduct({ ...actualProduct, image: event.target.files[0] }); 
-    }
-
-    const validateForm = () => {
-        const { title, description, price, category } = actualProduct;
-
-        if (!product) {
-            return !!(actualProduct.id && title && description && price && category);
-        }
-
-        return !!(title && description && price && category);
-    };
-
-    const handleUpdate = () => {
-        if (validateForm()) {
-            axios
-                .patch(
-                    `http://localhost:8080/api/hardwarestore/product/${product.id}`,
-                    actualProduct
-                )
-                .then(() => {
-                    setShowModal(false);
-                    toast.success("Product has been updated!");
-
-                    getProducts();
-                })
-                .catch(() => toast.error("Somethig wrong happend! Try again"));
-        } else {
-            toast.error("Complete all the fields!");
-        }
-    };
-
-    const handleSave = () => {
-        console.log(actualProduct)
-        if (validateForm()) {
-            axios.post('https://api.example.com/data', product)
-                .then(() =>
-                    toast.success("Product has been updated!")
-                )
-                .catch(() =>
-                    toast.error("Something went wrong!!")
+            )
+            .catch(() =>
+                toast.error("Something went wrong!!")
             );
+    })
 
-        }
-        else{
-            toast.error("Complete all fields!!")
-        }
-    };
+    // const validateForm = () => {
+    //     const { title, description, price, category } = actualProduct;
+
+    //     if (!product) {
+    //         return !!(actualProduct.id && title && description && price && category);
+    //     }
+
+    //     return !!(title && description && price && category);
+    // };
+
+    // const handleUpdate = () => {
+    //     if (validateForm()) {
+    //         axios
+    //             .patch(
+    //                 `http://localhost:8080/api/hardwarestore/product/${product.id}`,
+    //                 actualProduct
+    //             )
+    //             .then(() => {
+    //                 setShowModal(false);
+    //                 toast.success("Product has been updated!");
+
+    //                 getProducts();
+    //             })
+    //             .catch(() => toast.error("Somethig wrong happend! Try again"));
+    //     } else {
+    //         toast.error("Complete all the fields!");
+    //     }
+    // };
+
+    // const handleSave = () => {
+    //     console.log(actualProduct)
+    //     if (validateForm()) {
+    //         axios.post('https://api.example.com/data', product)
+    //             .then(() =>
+    //                 toast.success("Product has been updated!")
+    //             )
+    //             .catch(() =>
+    //                 toast.error("Something went wrong!!")
+    //             );
+
+    //     }
+    //     else {
+    //         toast.error("Complete all fields!!")
+    //     }
+    // };
 
     return (
         <>
@@ -101,23 +117,23 @@ export default function ModalProduct({
                             </button>
                         </div>
                         {/*body*/}
-                        <form className="w-full bg-white shadow-md p-6">
+                        <form onSubmit={onSubmit} className="w-full bg-white shadow-md p-6">
                             <div className="flex flex-wrap -mx-3 mb-6">
                                 <div className="w-full md:w-full px-3 mb-6">
                                     <label className="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" htmlFor="category_name">Title</label>
-                                    <input onChange={(e) => handleChangeFiled("title", e.target.value)} value={actualProduct.title ? actualProduct.title : ""} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="name" placeholder="Category Name" required />
+                                    <input {...register("title")} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="title" placeholder="Title" />
                                 </div>
                                 <div className="w-full px-3 mb-6">
                                     <label className="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" htmlFor="category_name">Description</label>
-                                    <textarea onChange={(e) => handleChangeFiled("description", e.target.value)} value={actualProduct.description ? actualProduct.description : ""} rows={4} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" name="description" required > </textarea>
+                                    <textarea {...register("description")} rows={4} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" placeholder="Description" name="description"  ></textarea>
                                 </div>
                                 <div className="w-full md:w-full px-3 mb-6">
                                     <label className="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" htmlFor="category_name">Category</label>
-                                    <input onChange={(e) => handleChangeFiled("category", e.target.value)} value={actualProduct.category ? actualProduct.category : ""} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="name" placeholder="Category Name" required />
+                                    <input {...register("category")} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="category" placeholder="Category" />
                                 </div>
                                 <div className="w-full md:w-full px-3 mb-6">
                                     <label className="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" htmlFor="category_name">Price</label>
-                                    <input onChange={(e) => handleChangeFiled("price", e.target.value)} value={actualProduct.price ? actualProduct.price : ""} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="name" placeholder="Category Name" required />
+                                    <input {...register("price")} className="appearance-none block w-full bg-white text-gray-900 font-medium border border-gray-400 rounded-lg py-3 px-3 leading-tight focus:outline-none focus:border-[#98c01d]" type="text" name="price" placeholder="Price" />
                                 </div>
 
                                 {/* <div className="w-full md:w-full px-3 mb-6">
@@ -135,124 +151,33 @@ export default function ModalProduct({
 
                                         <p className="mt-2 text-gray-500 tracking-wide">Upload or drag & drop your file SVG, PNG, JPG or GIF. </p>
 
-                                        <input id="dropzone-file" onChange={handleChangeImage} type="file" className="hidden" name="category_image" accept="image/png, image/jpeg, image/webp" />
+                                        <input id="dropzone-file" {...register("image")} type="file" className="hidden" name="image" accept="image/png, image/jpeg, image/webp" />
                                     </label>
                                 </div>
 
                             </div>
-                        </form>
-                        {/* <div className="mx-auto block w-10/12 rounded-lg bg-white p-6 shadow-4 dark:bg-surface-dark">
-                            <div className="mb-5">
-                                <label
-                                    htmlFor="title"
-                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Title
-                                </label>
-                                <input
-                                    value={actualProduct.title ? actualProduct.title : ""}
-                                    type="text"
-                                    id="title"
-                                    onChange={(e) => handleChangeFiled("title", e.target.value)}
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    placeholder="Title"
-                                />
-                            </div>
-                            <div className="mb-5">
-                                <label
-                                    htmlFor="description"
-                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Description
-                                </label>
-                                <input
-                                    type="text"
-                                    value={
-                                        actualProduct.description ? actualProduct.description : ""
-                                    }
-                                    onChange={(e) =>
-                                        handleChangeFiled("description", e.target.value)
-                                    }
-                                    placeholder="Description"
-                                    id="decription"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                />
-                            </div>
-                            <div className="mb-5">
-                                <label
-                                    htmlFor="price"
-                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Price
-                                </label>
-                                <input
-                                    type="text"
-                                    value={actualProduct.price ? actualProduct.price : ""}
-                                    onChange={(e) => handleChangeFiled("price", e.target.value)}
-                                    placeholder="Price"
-                                    id="password"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                />
-                            </div>
-                            <div className="mb-5">
-                                <label
-                                    htmlFor="category"
-                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                >
-                                    Category
-                                </label>
-                                <input
-                                    placeholder="Category"
-                                    value={actualProduct.category ? actualProduct.category : ""}
-                                    onChange={(e) =>
-                                        handleChangeFiled("category", e.target.value)
-                                    }
-                                    type="text"
-                                    id="category"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                />
-                            </div>
+                            {/*footer*/}
 
-                            <div className="mb-5">
-                                <label
-                                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                    htmlFor="user_avatar"
+                            <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+                                <button
+                                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
                                 >
-                                    Image
-                                </label>
-                                <input
-                                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                    aria-describedby="user_avatar_help"
-                                    id="user_avatar"
-                                    type="file"
-                                />
-                                <div
-                                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                    id="user_avatar_help"
+                                    Close
+                                </button>
+                                <button
+                                    className="bg-indigo-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+
                                 >
-                                    A picture for represent the component
-                                </div>
-                            </div> */}
-                        {/*footer*/}
-                        <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
-                            <button
-                                className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                type="button"
-                                onClick={() => setShowModal(false)}
-                            >
-                                Close
-                            </button>
-                            <button
-                                className="bg-indigo-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                onClick={product ? handleSave : handleUpdate}
-                            >
-                                {actualProduct.id ?
-                                    "Update Product"
-                                    :
-                                    "Create Product"
-                                }
-                            </button>
-                        </div>
+                                    {product.id ?
+                                        "Update Product"
+                                        :
+                                        "Create Product"
+                                    }
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

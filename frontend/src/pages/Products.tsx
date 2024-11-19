@@ -17,6 +17,8 @@ export default function ProductsPage() {
 
   useEffect(() => {
     getProducts()
+
+    console.log(products)
   }, [])
 
   const getProducts = () => {
@@ -83,7 +85,8 @@ export default function ProductsPage() {
 
           <button
             className="px-4 py-2 bg-gray-300 text-gray-600 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => handlePageChange(currentPage + 1)}
+            // onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => console.log(products)}
             disabled={currentPage === totalPages}
           >
             Siguiente
