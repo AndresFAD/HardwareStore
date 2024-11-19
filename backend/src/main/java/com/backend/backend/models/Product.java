@@ -31,6 +31,18 @@ public class Product {
         created_at = now.toString();
     }
 
+    public Product(String title, String description, String category, float price) {
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.price = price;
+        this.image = null;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        created_at = now.toString();
+    }
+
+
     public Product() {
     }
 
